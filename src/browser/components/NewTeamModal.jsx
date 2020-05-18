@@ -138,6 +138,7 @@ export default class NewTeamModal extends React.Component {
         className='NewTeamModal'
         show={this.props.show}
         id='newServerModal'
+        enforceFocus={true}
         onEntered={() => this.teamNameInputRef.focus()}
         onHide={this.props.onClose}
         container={this.props.modalContainer}
@@ -175,11 +176,14 @@ export default class NewTeamModal extends React.Component {
                 onChange={this.handleTeamNameChange}
                 inputRef={(ref) => {
                   this.teamNameInputRef = ref;
+                  if (this.props.setInputRef) {
+                    this.props.setInputRef(ref);
+                  }
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
-                autofocus='true'
+                autoFocus={true}
               />
               <FormControl.Feedback/>
               <HelpBlock>{'The name of the server displayed on your desktop app tab bar.'}</HelpBlock>
@@ -238,4 +242,5 @@ NewTeamModal.propTypes = {
   modalContainer: PropTypes.object,
   restoreFocus: PropTypes.bool,
   currentOrder: PropTypes.number,
+  setInputRef: PropTypes.func,
 };

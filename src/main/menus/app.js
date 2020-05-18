@@ -12,7 +12,7 @@ function createTemplate(mainWindow, config, isDev) {
     type: 'separator',
   };
 
-  const appName = app.getName();
+  const appName = app.name;
   const firstMenuName = (process.platform === 'darwin') ? appName : 'File';
   const template = [];
 
@@ -144,9 +144,7 @@ function createTemplate(mainWindow, config, isDev) {
         if (focusedWindow === mainWindow) {
           mainWindow.webContents.send('clear-cache-and-reload-tab');
         } else {
-          focusedWindow.webContents.session.clearCache(() => {
-            focusedWindow.reload();
-          });
+          focusedWindow.webContents.session.clearCache().then(focusedWindow.reload);
         }
       }
     },
@@ -214,7 +212,7 @@ function createTemplate(mainWindow, config, isDev) {
         if (focusedWindow === mainWindow) {
           mainWindow.webContents.send('go-back');
         } else if (focusedWindow.webContents.canGoBack()) {
-          focusedWindow.goBack();
+          focusedWindow.webContents.goBack();
         }
       },
     }, {
@@ -224,7 +222,7 @@ function createTemplate(mainWindow, config, isDev) {
         if (focusedWindow === mainWindow) {
           mainWindow.webContents.send('go-forward');
         } else if (focusedWindow.webContents.canGoForward()) {
-          focusedWindow.goForward();
+          focusedWindow.webContents.goForward();
         }
       },
     }],

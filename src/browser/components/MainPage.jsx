@@ -13,7 +13,7 @@ import {CSSTransition, TransitionGroup} from 'react-transition-group';
 import {Grid, Row} from 'react-bootstrap';
 import DotsVerticalIcon from 'mdi-react/DotsVerticalIcon';
 
-import {ipcRenderer, remote} from 'electron';
+import {ipcRenderer, remote, shell} from 'electron';
 
 import Utils from '../../utils/util';
 
@@ -56,6 +56,7 @@ export default class MainPage extends React.Component {
       targetURL: '',
       certificateRequests: [],
       maximized: false,
+      showNewTeamModal: false,
     };
   }
 
@@ -180,10 +181,15 @@ export default class MainPage extends React.Component {
     ipcRenderer.on('clear-cache-and-reload-tab', () => {
       this.refs[`mattermostView${this.state.key}`].clearCacheAndReload();
     });
+    ipcRenderer.on('download-complete', this.showDownloadCompleteNotification);
 
     function focusListener() {
-      self.handleOnTeamFocused(self.state.key);
-      self.refs[`mattermostView${self.state.key}`].focusOnWebView();
+      if (self.state.showNewTeamModal && self.inputRef) {
+        self.inputRef.current().focus();
+      } else {
+        self.handleOnTeamFocused(self.state.key);
+        self.refs[`mattermostView${self.state.key}`].focusOnWebView();
+      }
       self.setState({unfocused: false});
     }
 
@@ -224,10 +230,10 @@ export default class MainPage extends React.Component {
       if (!activeTabWebContents) {
         return;
       }
-      if (activeTabWebContents.getZoomLevel() >= 9) {
+      if (activeTabWebContents.zoomLevel >= 9) {
         return;
       }
-      activeTabWebContents.setZoomLevel(activeTabWebContents.getZoomLevel() + 1);
+      activeTabWebContents.zoomLevel += 1;
     });
 
     ipcRenderer.on('zoom-out', () => {
@@ -235,10 +241,10 @@ export default class MainPage extends React.Component {
       if (!activeTabWebContents) {
         return;
       }
-      if (activeTabWebContents.getZoomLevel() <= -8) {
+      if (activeTabWebContents.zoomLevel <= -8) {
         return;
       }
-      activeTabWebContents.setZoomLevel(activeTabWebContents.getZoomLevel() - 1);
+      activeTabWebContents.zoomLevel -= 1;
     });
 
     ipcRenderer.on('zoom-reset', () => {
@@ -246,7 +252,7 @@ export default class MainPage extends React.Component {
       if (!activeTabWebContents) {
         return;
       }
-      activeTabWebContents.setZoomLevel(0);
+      activeTabWebContents.zoomLevel = 0;
     });
 
     ipcRenderer.on('undo', () => {
@@ -336,11 +342,11 @@ export default class MainPage extends React.Component {
 
     if (process.platform === 'darwin') {
       self.setState({
-        isDarkMode: remote.systemPreferences.isDarkMode(),
+        isDarkMode: remote.nativeTheme.shouldUseDarkColors,
       });
       remote.systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => {
         self.setState({
-          isDarkMode: remote.systemPreferences.isDarkMode(),
+          isDarkMode: remote.nativeTheme.shouldUseDarkColors,
         });
       });
     } else {
@@ -514,17 +520,20 @@ export default class MainPage extends React.Component {
     }
   }
 
-  handleClose = () => {
+  handleClose = (e) => {
+    e.stopPropagation(); // since it is our button, the event goes into MainPage's onclick event, getting focus back.
     const win = remote.getCurrentWindow();
     win.close();
   }
 
-  handleMinimize = () => {
+  handleMinimize = (e) => {
+    e.stopPropagation();
     const win = remote.getCurrentWindow();
     win.minimize();
   }
 
-  handleMaximize = () => {
+  handleMaximize = (e) => {
+    e.stopPropagation();
     const win = remote.getCurrentWindow();
     win.maximize();
   }
@@ -541,14 +550,16 @@ export default class MainPage extends React.Component {
   }
 
   handleDoubleClick = () => {
-    const doubleClickAction = remote.systemPreferences.getUserDefault('AppleActionOnDoubleClick', 'string');
-    const win = remote.getCurrentWindow();
-    if (doubleClickAction === 'Minimize') {
-      win.minimize();
-    } else if (doubleClickAction === 'Maximize' && !win.isMaximized()) {
-      win.maximize();
-    } else if (doubleClickAction === 'Maximize' && win.isMaximized()) {
-      win.unmaximize();
+    if (process.platform === 'darwin') {
+      const doubleClickAction = remote.systemPreferences.getUserDefault('AppleActionOnDoubleClick', 'string');
+      const win = remote.getCurrentWindow();
+      if (doubleClickAction === 'Minimize') {
+        win.minimize();
+      } else if (!win.isMaximized()) {
+        win.maximize();
+      } else if (win.isMaximized()) {
+        win.unmaximize();
+      }
     }
   }
 
@@ -599,10 +610,23 @@ export default class MainPage extends React.Component {
       this.switchToTabForCertificateRequest(certificateRequests[0].server);
     }
   };
+
+  showDownloadCompleteNotification = async (event, item) => {
+    const title = process.platform === 'win32' ? item.serverInfo.name : 'Download Complete';
+    const notificationBody = process.platform === 'win32' ? `Download Complete \n ${item.fileName}` : item.fileName;
+
+    await Utils.dispatchNotification(title, notificationBody, false, () => {
+      shell.showItemInFolder(item.path.normalize());
+    });
+  }
+
   setDarkMode() {
     this.setState({
       isDarkMode: this.props.setDarkMode(),
     });
+  }
+  setInputRef = (ref) => {
+    this.inputRef = ref;
   }
 
   showExtraBar = () => {
@@ -782,6 +806,7 @@ export default class MainPage extends React.Component {
         currentOrder={this.props.teams.length}
         show={this.state.showNewTeamModal}
         restoreFocus={false}
+        setInputRef={this.setInputRef}
         onClose={() => {
           this.setState({
             showNewTeamModal: false,

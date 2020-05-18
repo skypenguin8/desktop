@@ -78,6 +78,7 @@ describe('browser/settings.html', function desc() {
         click('#addNewServer').
         waitForVisible('#newServerModal').
         setValue('#teamNameInput', 'TestTeam').
+        pause(100).
         setValue('#teamUrlInput', 'http://example.org').
         click('#saveNewServerModal').
         waitForVisible('#newServerModal', true).
@@ -382,7 +383,7 @@ describe('browser/settings.html', function desc() {
 
     it('should disappear on click Close', async () => {
       await this.app.client.
-        click('.modal-dialog button.close').
+        element('.modal-dialog').click('button.close').
         waitForVisible(modalTitleSelector, 10000, true);
       const existing = await this.app.client.isExisting(modalTitleSelector);
       existing.should.be.false;

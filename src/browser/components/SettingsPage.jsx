@@ -120,10 +120,10 @@ export default class SettingsPage extends React.Component {
       if (!activeTabWebContents) {
         return;
       }
-      if (activeTabWebContents.getZoomLevel() >= 9) {
+      if (activeTabWebContents.zoomLevel >= 9) {
         return;
       }
-      activeTabWebContents.setZoomLevel(activeTabWebContents.getZoomLevel() + 1);
+      activeTabWebContents.zoomLevel += 1;
     });
 
     ipcRenderer.on('zoom-out', () => {
@@ -131,10 +131,10 @@ export default class SettingsPage extends React.Component {
       if (!activeTabWebContents) {
         return;
       }
-      if (activeTabWebContents.getZoomLevel() <= -8) {
+      if (activeTabWebContents.zoomLevel <= -8) {
         return;
       }
-      activeTabWebContents.setZoomLevel(activeTabWebContents.getZoomLevel() - 1);
+      activeTabWebContents.zoomLevel -= 1;
     });
 
     ipcRenderer.on('zoom-reset', () => {
@@ -142,7 +142,7 @@ export default class SettingsPage extends React.Component {
       if (!activeTabWebContents) {
         return;
       }
-      activeTabWebContents.setZoomLevel(0);
+      activeTabWebContents.zoomLevel = 0;
     });
 
     ipcRenderer.on('undo', () => {
@@ -195,11 +195,11 @@ export default class SettingsPage extends React.Component {
 
     if (process.platform === 'darwin') {
       self.setState({
-        isDarkMode: remote.systemPreferences.isDarkMode(),
+        isDarkMode: remote.nativeTheme.shouldUseDarkColors,
       });
       remote.systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => {
         self.setState({
-          isDarkMode: remote.systemPreferences.isDarkMode(),
+          isDarkMode: remote.nativeTheme.shouldUseDarkColors,
         });
       });
     } else {
@@ -467,14 +467,16 @@ export default class SettingsPage extends React.Component {
   }
 
   handleDoubleClick = () => {
-    const doubleClickAction = remote.systemPreferences.getUserDefault('AppleActionOnDoubleClick', 'string');
-    const win = remote.getCurrentWindow();
-    if (doubleClickAction === 'Minimize') {
-      win.minimize();
-    } else if (doubleClickAction === 'Maximize' && !win.isMaximized()) {
-      win.maximize();
-    } else if (doubleClickAction === 'Maximize' && win.isMaximized()) {
-      win.unmaximize();
+    if (process.platform === 'darwin') {
+      const doubleClickAction = remote.systemPreferences.getUserDefault('AppleActionOnDoubleClick', 'string');
+      const win = remote.getCurrentWindow();
+      if (doubleClickAction === 'Minimize') {
+        win.minimize();
+      } else if (!win.isMaximized()) {
+        win.maximize();
+      } else if (win.isMaximized()) {
+        win.unmaximize();
+      }
     }
   }
 
@@ -806,7 +808,7 @@ export default class SettingsPage extends React.Component {
           checked={this.state.showTrayIcon}
           onChange={this.handleChangeShowTrayIcon}
         >
-          {process.platform === 'darwin' ? `Show ${remote.app.getName()} icon in the menu bar` : 'Show icon in the notification area'}
+          {process.platform === 'darwin' ? `Show ${remote.app.name} icon in the menu bar` : 'Show icon in the notification area'}
           <HelpBlock>
             {'Setting takes effect after restarting the app.'}
           </HelpBlock>

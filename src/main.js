@@ -6,7 +6,7 @@ import os from 'os';
 import path from 'path';
 import fs from 'fs';
 
-import electron from 'electron';
+import electron, {nativeTheme} from 'electron';
 import isDev from 'electron-is-dev';
 import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
 import log from 'electron-log';
@@ -85,6 +85,18 @@ const customLoginRegexPaths = [
 
 // tracking in progress custom logins
 const customLogins = {};
+
+const nixUA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Safari/537.36';
+
+const popupUserAgent = {
+  darwin: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Safari/537.36',
+  win32: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Safari/537.36',
+  aix: nixUA,
+  freebsd: nixUA,
+  linux: nixUA,
+  openbsd: nixUA,
+  sunos: nixUA,
+};
 
 /**
  * Main entry point for the application, ensures that everything initializes in the proper order
@@ -295,8 +307,7 @@ function handleAppWindowAllClosed() {
 
 function handleAppBrowserWindowCreated(error, newWindow) {
   // Screen cannot be required before app is ready
-  const {screen} = electron;
-  resizeScreen(screen, newWindow);
+  resizeScreen(electron.screen, newWindow);
 }
 
 function handleAppActivate() {
@@ -525,7 +536,12 @@ function handleAppWebContentsCreated(dc, contents) {
           popupWindow = null;
         });
       }
-      popupWindow.loadURL(url);
+
+      // currently changing the userAgent for popup windows to allow plugins to go through google's oAuth
+      // should be removed once a proper oAuth2 implementation is setup.
+      popupWindow.loadURL(url, {
+        userAgent: popupUserAgent[process.platform],
+      });
     }
   });
 
@@ -676,12 +692,12 @@ function initializeAfterAppReady() {
     if (process.platform === 'darwin') {
       trayIcon.setPressedImage(trayImages.clicked.normal);
       systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => {
-        switchMenuIconImages(trayImages, systemPreferences.isDarkMode());
+        switchMenuIconImages(trayImages, nativeTheme.shouldUseDarkColors);
         trayIcon.setImage(trayImages.normal);
       });
     }
 
-    trayIcon.setToolTip(app.getName());
+    trayIcon.setToolTip(app.name);
     trayIcon.on('click', () => {
       if (!mainWindow.isVisible() || mainWindow.isMinimized()) {
         if (mainWindow.isMinimized()) {
@@ -718,7 +734,7 @@ function initializeAfterAppReady() {
     });
   }
 
-  session.defaultSession.on('will-download', (event, item) => {
+  session.defaultSession.on('will-download', (event, item, webContents) => {
     const filename = item.getFilename();
     const fileElements = filename.split('.');
     const filters = [];
@@ -738,6 +754,16 @@ function initializeAfterAppReady() {
       title: filename,
       defaultPath: os.homedir() + '/Downloads/' + filename,
       filters,
+    });
+
+    item.on('done', (doneEvent, state) => {
+      if (state === 'completed') {
+        mainWindow.webContents.send('download-complete', {
+          fileName: filename,
+          path: item.savePath,
+          serverInfo: Utils.getServer(webContents.getURL(), config.teams),
+        });
+      }
     });
   });
 
@@ -849,7 +875,7 @@ function handleUpdateUnreadEvent(event, arg) {
       if (process.platform === 'darwin') {
         trayIcon.setPressedImage(trayImages.clicked.normal);
       }
-      trayIcon.setToolTip(app.getName());
+      trayIcon.setToolTip(app.name);
     }
   }
 }
@@ -1030,7 +1056,7 @@ function getTrayImages() {
         mention: nativeImage.createFromPath(path.resolve(assetsDir, 'osx/ClickedMenuIconMention.png')),
       },
     };
-    switchMenuIconImages(icons, systemPreferences.isDarkMode());
+    switchMenuIconImages(icons, nativeTheme.shouldUseDarkColors);
     return icons;
   }
   case 'linux':
@@ -1096,10 +1122,7 @@ function wasUpdated(lastAppVersion) {
 function clearAppCache() {
   if (mainWindow) {
     console.log('Clear cache after update');
-    mainWindow.webContents.session.clearCache(() => {
-      //Restart after cache clear
-      mainWindow.reload();
-    });
+    mainWindow.webContents.session.clearCache().then(mainWindow.reload);
   } else {
     //Wait for mainWindow
     setTimeout(clearAppCache, 100);
@@ -1107,28 +1130,29 @@ function clearAppCache() {
 }
 
 function isWithinDisplay(state, display) {
-  // given a display, check if window is within it
-  return (state.x > display.maxX || state.y > display.maxY || state.x < display.minX || state.y < display.minY);
+  const startsWithinDisplay = !(state.x > display.maxX || state.y > display.maxY || state.x < display.minX || state.y < display.minY);
+  if (!startsWithinDisplay) {
+    return false;
+  }
+
+  // is half the screen within the display?
+  const midX = state.x + (state.width / 2);
+  const midY = state.y + (state.height / 2);
+  return !(midX > display.maxX || midY > display.maxY);
 }
 
 function getValidWindowPosition(state) {
   // Check if the previous position is out of the viewable area
   // (e.g. because the screen has been plugged off)
   const boundaries = Utils.getDisplayBoundaries();
-  const isDisplayed = boundaries.reduce(
-    (prev, display) => {
-      return prev || isWithinDisplay(state, display);
-    },
-    false);
+  const display = boundaries.find((boundary) => {
+    return isWithinDisplay(state, boundary);
+  });
 
-  if (isDisplayed) {
-    Reflect.deleteProperty(state, 'x');
-    Reflect.deleteProperty(state, 'y');
-    Reflect.deleteProperty(state, 'width');
-    Reflect.deleteProperty(state, 'height');
+  if (typeof display === 'undefined') {
+    return {};
   }
-
-  return state;
+  return {x: state.x, y: state.y};
 }
 
 function resizeScreen(screen, browserWindow) {
@@ -1141,7 +1165,11 @@ function resizeScreen(screen, browserWindow) {
       width: size[0],
       height: size[1],
     });
-    browserWindow.setPosition(validPosition.x || 0, validPosition.y || 0);
+    if (typeof validPosition.x !== 'undefined' || typeof validPosition.y !== 'undefined') {
+      browserWindow.setPosition(validPosition.x || 0, validPosition.y || 0);
+    } else {
+      browserWindow.center();
+    }
   }
 
   browserWindow.on('restore', handle);
