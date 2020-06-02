@@ -23,6 +23,8 @@ const preloadJS = `file://${remote.app.getAppPath()}/browser/webview/mattermost_
 const ERR_NOT_IMPLEMENTED = -11;
 const U2F_EXTENSION_URL = 'chrome-extension://kmendfapggjehodndflmmgagdbamhnfd/u2f-comms.html';
 
+const callString = '[호출. 제 자리로 오세요]';
+
 export default class MattermostView extends React.Component {
   constructor(props) {
     super(props);
@@ -159,7 +161,48 @@ export default class MattermostView extends React.Component {
       }
       case 'dispatchNotification': {
         const [title, body, channel, teamId, silent] = event.args;
-        Utils.dispatchNotification(title, body, silent, () => this.webviewRef.current.send('notification-clicked', {channel, teamId}));
+        Utils.dispatchNotification(title, body, silent, () => this.webviewRef.current.send('notification-clicked', {channel, teamId})).then((r) => {
+          r.onshow = () => {
+            const bodyData = body.split(':');
+            const callName = bodyData[0].split(' ')[1];
+            const callType = bodyData[1].trim().substring(0, 15);
+            const callResult = callType === callString;
+            if (callResult) {
+              const currentWindow = remote.getCurrentWindow();
+
+              if (process.platform === 'win32') {
+                if (currentWindow.isVisible()) {
+                  currentWindow.focus();
+                } else if (currentWindow.isMinimized()) {
+                  currentWindow.restore();
+                } else {
+                  currentWindow.show();
+                }
+              } else if (currentWindow.isMinimized()) {
+                currentWindow.restore();
+              } else {
+                currentWindow.show();
+              }
+
+              this.webviewRef.current.send('notification-clicked', {channel, teamId});
+
+              const alertWin = new remote.BrowserWindow({
+                width: 300,
+                height: 200,
+                title: `${callName}님 호출입니다.`,
+                parent: currentWindow,
+                modal: true,
+                alwaysOnTop: true,
+                autoHideMenuBar: true,
+                resizable: false,
+                minimizable: false,
+                movable: false,
+                center: true,
+                closable: true,
+              });
+            }
+          };
+        });
         break;
       }
       case 'onNotificationClick':
