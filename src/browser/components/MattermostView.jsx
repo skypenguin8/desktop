@@ -6,7 +6,6 @@
 /* eslint-disable react/no-set-state */
 
 import url from 'url';
-import path from 'path';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -160,16 +159,55 @@ export default class MattermostView extends React.Component {
       }
       case 'dispatchNotification': {
         const [title, body, channel, teamId, silent] = event.args;
+        const currentWindow = remote.getCurrentWindow();
         Utils.dispatchNotification(title, body, silent, () => this.webviewRef.current.send('notification-clicked', {channel, teamId})).then((r) => {
           r.onshow = () => {
             const bodyData = body.split(':');
-            const callName = bodyData[0].split(' ')[1];
-            const callType = bodyData[1].trim().substring(0, 4);
-            const callString = '[호출]';
+            const callType = bodyData[1].trim().substring(0, 3);
+            const callString = '!호출';
             const callResult = callType === callString;
-            if (callResult) {
-              const currentWindow = remote.getCurrentWindow();
 
+            if (callResult) {
+              // 모달 창 생성
+              let alertWin = new remote.BrowserWindow({
+                width: 1000,
+                height: 800,
+                title: '호출 메시지',
+                parent: currentWindow,
+                modal: true,
+                alwaysOnTop: true,
+                autoHideMenuBar: true,
+                resizable: false,
+                minimizable: false,
+                movable: false,
+                center: true,
+                frame: false,
+                show: false,
+                webPreferences: {
+                  nodeIntegration: true,
+                },
+              });
+
+              // eslint-disable-next-line max-nested-callbacks
+              alertWin.on('closed', () => {
+                console.log('alertWin closed');
+                this.webviewRef.current.send('notification-clicked', {channel, teamId});
+                alertWin = null;
+              });
+
+              // eslint-disable-next-line max-nested-callbacks
+              alertWin.once('show', () => {
+                alertWin.webContents.send('data', body);
+              });
+
+              // eslint-disable-next-line max-nested-callbacks
+              alertWin.once('ready-to-show', () => {
+                alertWin.show();
+              });
+
+              alertWin.loadFile('alert.html');
+
+              // 창 활성화
               if (process.platform === 'win32') {
                 if (currentWindow.isVisible()) {
                   currentWindow.focus();
@@ -183,42 +221,7 @@ export default class MattermostView extends React.Component {
               } else {
                 currentWindow.show();
               }
-
-              this.webviewRef.current.send('notification-clicked', {channel, teamId});
-
-              const {dialog} = remote;
-              const options = {
-                type: 'info',
-                title: '호출 메시지',
-                message: `${callName}님 호출입니다.`,
-                detail: callType,
-              };
-              dialog.showMessageBox(currentWindow, options).then(r => console.log('r', r));
-
-              /*const BrowserWindow = electron.remote.BrowserWindow;
-              let alertWin = new BrowserWindow({
-                width: 1000,
-                height: 800,
-                title: `${callName}님 호출입니다.`,
-                parent: currentWindow,
-                modal: true,
-                alwaysOnTop: true,
-                autoHideMenuBar: true,
-                resizable: false,
-                minimizable: false,
-                movable: false,
-                center: true,
-                closable: true,
-                webPreferences: {
-                  nodeIntegration: true
-                },
-              });
-
-              // eslint-disable-next-line max-nested-callbacks
-              alertWin.on('closed', () => {
-                console.log('alertWin closed');
-                alertWin = null;
-              });*/
+              ipcRenderer.sendToHost('onNotificationClick');
             }
           };
         });

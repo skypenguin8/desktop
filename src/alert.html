@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <script type="module" src="alert.js"></script>
+    <script>
+      require('electron').ipcRenderer.on('data', (event, message) => {
+        const bodyData = message.split(':');
+        const callName = bodyData[0].split(' ')[1];
+        const callContents = bodyData[1].trim().substring(4);
+
+        console.log('callName', callName);
+        console.log('callContents', callContents);
+
+      })
+    </script>
+    <title>Title</title>
+</head>
+<body>
+<button id='close'>닫기</button>
+</body>
+</html>
