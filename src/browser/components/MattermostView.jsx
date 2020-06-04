@@ -170,8 +170,8 @@ export default class MattermostView extends React.Component {
             if (callResult) {
               // 모달 창 생성
               let alertWin = new remote.BrowserWindow({
-                width: 1000,
-                height: 800,
+                width: 800,
+                height: 400,
                 title: '호출 메시지',
                 parent: currentWindow,
                 modal: true,
@@ -183,6 +183,7 @@ export default class MattermostView extends React.Component {
                 center: true,
                 frame: false,
                 show: false,
+                backgroundColor: '#2d3436',
                 webPreferences: {
                   nodeIntegration: true,
                 },
@@ -190,9 +191,8 @@ export default class MattermostView extends React.Component {
 
               // eslint-disable-next-line max-nested-callbacks
               alertWin.on('closed', () => {
-                console.log('alertWin closed');
-                this.webviewRef.current.send('notification-clicked', {channel, teamId});
                 alertWin = null;
+                this.webviewRef.current.send('notification-clicked', {channel, teamId});
               });
 
               // eslint-disable-next-line max-nested-callbacks

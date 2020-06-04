@@ -9,14 +9,52 @@
         const callName = bodyData[0].split(' ')[1];
         const callContents = bodyData[1].trim().substring(4);
 
-        console.log('callName', callName);
-        console.log('callContents', callContents);
-
+        document.querySelector('strong').innerHTML = callName;
+        document.querySelector('h4').innerHTML = callContents;
       })
     </script>
-    <title>Title</title>
+    <title></title>
+    <style>
+      button {
+        font-weight: 600;
+        color: rgb(255, 255, 255);
+        padding: 1em 2em;
+        outline: none;
+        border-width: initial;
+        border-style: none;
+        border-color: initial;
+        border-image: initial;
+        background: rgb(201, 78, 80);
+      }
+      .alertMain {
+        text-align: center;
+        padding: 4em;
+      }
+      h2 {
+        font-weight: 400;
+        font-size: 2em;
+        padding: 0px 0px 1em;
+        margin: 0px;
+        color: rgb(201, 78, 80);
+      }
+      h4 {
+        font-weight: 400;
+        font-size: 1.5em;
+        padding: 0px 0px 3.7em;
+        margin: 0px;
+        color: #a5b1c2;
+      }
+    </style>
 </head>
 <body>
-<button id='close'>닫기</button>
+  <div class="alertMain">
+    <h2>
+      <strong style="font-size: 1.3em"></strong>님 호출메시지 입니다
+    </h2>
+    <h4></h4>
+    <div style="text-align: center">
+      <button id="close">확인</button>
+    </div>
+  </div>
 </body>
 </html>
