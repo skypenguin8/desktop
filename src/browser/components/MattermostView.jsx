@@ -170,8 +170,8 @@ export default class MattermostView extends React.Component {
             if (callResult) {
               // 모달 창 생성
               let alertWin = new remote.BrowserWindow({
-                width: 800,
-                height: 400,
+                width: window.screen.availWidth,
+                height: window.screen.availHeight,
                 title: '호출 메시지',
                 parent: currentWindow,
                 modal: true,
