@@ -11,7 +11,7 @@ import {autoUpdater, CancellationToken} from 'electron-updater';
 import semver from 'semver';
 
 // eslint-disable-next-line no-magic-numbers
-const UPDATER_INTERVAL_IN_MS = 48 * 60 * 60 * 1000; // 48 hours
+const UPDATER_INTERVAL_IN_MS = 1 * 60 * 1000; // 48 hours
 
 autoUpdater.logger = logger;
 autoUpdater.logger.transports.file.level = 'info';
@@ -49,7 +49,7 @@ function createUpdaterModal(parentWindow, options) {
   modal.once('ready-to-show', () => {
     modal.show();
   });
-  let updaterURL = (global.isDev ? 'http://localhost:8080' : `file://${app.getAppPath()}`) + '/browser/updater.html';
+  let updaterURL = `file://${app.getAppPath()}/browser/updater.html`;
 
   if (options.notifyOnly) {
     updaterURL += '?notifyOnly=true';
@@ -92,6 +92,7 @@ function downloadAndInstall(cancellationToken) {
 }
 
 function initialize(appState, mainWindow, notifyOnly = false) {
+  console.log('================================================== autoUpdater =========================================================');
   autoUpdater.autoDownload = false; // To prevent upgrading on quit
   const assetsDir = path.resolve(app.getAppPath(), 'assets');
   autoUpdater.on('error', (err) => {

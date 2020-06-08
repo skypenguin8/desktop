@@ -1,3 +1,4 @@
-provider: 'github'
-owner: 'skypenguin8'
-repo: 'desktop'
+owner: skypenguin8
+repo: desktop
+provider: github
+updaterCacheDirName: mattermost-desktop-updater

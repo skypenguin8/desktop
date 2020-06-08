@@ -165,7 +165,7 @@ const dispatchNotification = async (title, body, silent, handleClick) => {
   notification.onclick = handleClick;
 
   notification.onerror = () => {
-    log.error('Notification failed to show');
+    log.error('Notification failed to show 12');
   };
 
   return notification;

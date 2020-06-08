@@ -27,10 +27,12 @@ export default class RegistryConfig extends EventEmitter {
    * @emits {update} emitted once all data has been loaded from the registry
    */
   async init() {
+    console.log('process.platform', process.platform);
     if (process.platform === 'win32') {
       // extract DefaultServerList from the registry
       try {
         const servers = await this.getServersListFromRegistry();
+        console.log('servers', servers);
         if (servers.length) {
           this.data.teams.push(...servers);
         }
@@ -41,6 +43,7 @@ export default class RegistryConfig extends EventEmitter {
       // extract EnableServerManagement from the registry
       try {
         const enableServerManagement = await this.getEnableServerManagementFromRegistry();
+        console.log('enableServerManagement', enableServerManagement);
         if (enableServerManagement !== null) {
           this.data.enableServerManagement = enableServerManagement;
         }
@@ -51,6 +54,7 @@ export default class RegistryConfig extends EventEmitter {
       // extract EnableAutoUpdater from the registry
       try {
         const enableAutoUpdater = await this.getEnableAutoUpdatorFromRegistry();
+        console.log('enableAutoUpdater', enableAutoUpdater);
         if (enableAutoUpdater !== null) {
           this.data.enableAutoUpdater = enableAutoUpdater;
         }
@@ -58,8 +62,10 @@ export default class RegistryConfig extends EventEmitter {
         console.log('[RegistryConfig] Nothing retrieved for \'EnableAutoUpdater\'', error);
       }
     }
+    this.data.enableAutoUpdater = true;
     this.initialized = true;
     this.emit('update', this.data);
+    console.log('data', this.data);
   }
 
   /**
