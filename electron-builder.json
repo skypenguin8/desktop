@@ -1,7 +1,8 @@
 {
   "publish": [{
-    "provider": "generic",
-    "url": "https://releases.mattermost.com/desktop/"
+    "provider": "github",
+    "owner": "skypenguin8",
+    "repo": "desktop"
   }],
   "appId": "Mattermost.Desktop",
   "artifactName": "${name}-${version}-${os}-${arch}.${ext}",

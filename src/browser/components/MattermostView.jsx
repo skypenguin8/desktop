@@ -159,7 +159,72 @@ export default class MattermostView extends React.Component {
       }
       case 'dispatchNotification': {
         const [title, body, channel, teamId, silent] = event.args;
-        Utils.dispatchNotification(title, body, silent, () => this.webviewRef.current.send('notification-clicked', {channel, teamId}));
+        const currentWindow = remote.getCurrentWindow();
+        Utils.dispatchNotification(title, body, silent, () => this.webviewRef.current.send('notification-clicked', {channel, teamId})).then((r) => {
+          r.onshow = () => {
+            const bodyData = body.split(':');
+            const callType = bodyData[1].trim().substring(0, 3);
+            const callString = '!호출';
+            const callResult = callType === callString;
+
+            if (callResult) {
+              // 모달 창 생성
+              let alertWin = new remote.BrowserWindow({
+                width: window.screen.availWidth,
+                height: window.screen.availHeight,
+                title: '호출 메시지',
+                parent: currentWindow,
+                modal: true,
+                alwaysOnTop: true,
+                autoHideMenuBar: true,
+                resizable: false,
+                minimizable: false,
+                movable: false,
+                center: true,
+                frame: false,
+                show: false,
+                backgroundColor: '#2d3436',
+                webPreferences: {
+                  nodeIntegration: true,
+                },
+              });
+
+              // eslint-disable-next-line max-nested-callbacks
+              alertWin.on('closed', () => {
+                alertWin = null;
+                this.webviewRef.current.send('notification-clicked', {channel, teamId});
+              });
+
+              // eslint-disable-next-line max-nested-callbacks
+              alertWin.once('show', () => {
+                alertWin.webContents.send('data', body);
+              });
+
+              // eslint-disable-next-line max-nested-callbacks
+              alertWin.once('ready-to-show', () => {
+                alertWin.show();
+              });
+
+              alertWin.loadFile('browser/alert.html');
+
+              // 창 활성화
+              if (process.platform === 'win32') {
+                if (currentWindow.isVisible()) {
+                  currentWindow.focus();
+                } else if (currentWindow.isMinimized()) {
+                  currentWindow.restore();
+                } else {
+                  currentWindow.show();
+                }
+              } else if (currentWindow.isMinimized()) {
+                currentWindow.restore();
+              } else {
+                currentWindow.show();
+              }
+              ipcRenderer.sendToHost('onNotificationClick');
+            }
+          };
+        });
         break;
       }
       case 'onNotificationClick':
