@@ -205,7 +205,7 @@ export default class MattermostView extends React.Component {
                 alertWin.show();
               });
 
-              alertWin.loadFile('alert.html');
+              alertWin.loadFile('browser/alert.html');
 
               // 창 활성화
               if (process.platform === 'win32') {

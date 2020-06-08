@@ -2,17 +2,6 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <script type="module" src="alert.js"></script>
-    <script>
-      require('electron').ipcRenderer.on('data', (event, message) => {
-        const bodyData = message.split(':');
-        const callName = bodyData[0].split(' ')[1];
-        const callContents = bodyData[1].trim().substring(4);
-
-        document.querySelector('strong').innerHTML = callName;
-        document.querySelector('h4').innerHTML = callContents;
-      })
-    </script>
     <title></title>
     <style>
       button {
@@ -85,4 +74,20 @@
     </div>
   </div>
 </body>
+<script>
+  require('electron').ipcRenderer.on('data', (event, message) => {
+    const bodyData = message.split(':');
+    const callName = bodyData[0].split(' ')[1];
+    const callContents = bodyData[1].trim().substring(4);
+
+    document.querySelector('strong').innerHTML = callName;
+    document.querySelector('h4').innerHTML = callContents;
+  });
+
+  document.getElementById('close').addEventListener('click', (e) => {
+    const remote = require('electron').remote;
+    const window = remote.getCurrentWindow();
+    window.close();
+  });
+</script>
 </html>

@@ -1,7 +1,7 @@
 {
   "name": "mattermost-desktop",
   "productName": "Mattermost",
-  "version": "4.6.0-develop",
+  "version": "4.6.0",
   "description": "Mattermost",
   "main": "main.js",
   "author": "Mattermost, Inc. <feedback@mattermost.com>",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/mattermost/desktop.git"
+    "url": "https://github.com/skypenguin8/desktop.git"
   },
   "scripts": {
     "postinstall": "electron-builder install-app-deps && npm run extract-dict",
@@ -30,7 +30,7 @@
     "test": "npm-run-all lint:js test:*",
     "test:app": "cross-env NODE_ENV=production npm run build && mocha -r @babel/register --reporter mocha-circleci-reporter --recursive test/specs",
     "package:all": "cross-env NODE_ENV=production npm-run-all check-build-config package:windows package:mac package:linux",
-    "package:windows": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --win --x64 --ia32 --publish=never",
+    "package:windows": "cross-env NODE_ENV=production npm-run-all check-build-config build && cross-env GH_TOKEN='3edfeff23cf8b9406e04969803ffcb019dff4a32' electron-builder --win --x64 --ia32 --publish=never",
     "package:mac": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --mac --publish=never",
     "package:linux": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --linux --x64 --ia32 --publish=never",
     "lint:js": "eslint --ignore-path .gitignore --ignore-pattern node_modules --ext .js --ext .jsx .",
