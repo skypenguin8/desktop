@@ -16,7 +16,7 @@ import {protocols} from '../electron-builder.json';
 import AutoLauncher from './main/AutoLauncher';
 import CriticalErrorHandler from './main/CriticalErrorHandler';
 import upgradeAutoLaunch from './main/autoLaunch';
-
+import autoUpdater from './main/autoUpdater';
 import RegistryConfig from './common/config/RegistryConfig';
 import Config from './common/config';
 import CertificateStore from './main/certificateStore';
@@ -233,6 +233,9 @@ function initializeInterCommunicationEventListeners() {
   if (shouldShowTrayIcon()) {
     ipcMain.on('update-unread', handleUpdateUnreadEvent);
   }
+  if (!isDev && config.enableAutoUpdater) {
+    ipcMain.on('check-for-updates', autoUpdater.checkForUpdates);
+  }
   if (process.platform !== 'darwin') {
     ipcMain.on('open-app-menu', handleOpenAppMenu);
   }
@@ -242,6 +245,10 @@ function initializeMainWindowListeners() {
   mainWindow.on('closed', handleMainWindowClosed);
   mainWindow.on('unresponsive', criticalErrorHandler.windowUnresponsiveHandler.bind(criticalErrorHandler));
   mainWindow.webContents.on('crashed', handleMainWindowWebContentsCrashed);
+  mainWindow.on('ready-to-show', handleMainWindowReadyToShow);
+  if (!isDev && config.enableAutoUpdater) {
+    mainWindow.once('show', handleMainWindowShow);
+  }
 }
 
 //
@@ -801,6 +808,21 @@ function initializeAfterAppReady() {
     // is the requesting url trusted?
     callback(isTrustedURL(requestingURL));
   });
+
+  if (!isDev && config.enableAutoUpdater) {
+    const updaterConfig = autoUpdater.loadConfig();
+    autoUpdater.initialize(appState, mainWindow, updaterConfig.isNotifyOnly());
+    ipcMain.on('check-for-updates', autoUpdater.checkForUpdates);
+    mainWindow.once('show', () => {
+      if (autoUpdater.shouldCheckForUpdatesOnStart(appState.updateCheckedDate)) {
+        ipcMain.emit('check-for-updates');
+      } else {
+        setTimeout(() => {
+          ipcMain.emit('check-for-updates');
+        }, autoUpdater.UPDATER_INTERVAL_IN_MS);
+      }
+    });
+  }
 }
 
 //
@@ -980,6 +1002,24 @@ function handleMainWindowClosed() {
 
 function handleMainWindowWebContentsCrashed() {
   throw new Error('webContents \'crashed\' event has been emitted');
+}
+
+function handleMainWindowReadyToShow() {
+  if (!isDev) {
+    autoUpdater.checkForUpdates();
+  }
+}
+
+function handleMainWindowShow() {
+  if (!isDev) {
+    if (autoUpdater.shouldCheckForUpdatesOnStart(appState.updateCheckedDate)) {
+      ipcMain.emit('check-for-updates');
+    } else {
+      setTimeout(() => {
+        ipcMain.emit('check-for-updates');
+      }, autoUpdater.UPDATER_INTERVAL_IN_MS);
+    }
+  }
 }
 
 //

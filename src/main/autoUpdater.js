@@ -27,8 +27,8 @@ function createEventListener(win, eventName) {
 }
 
 function createUpdaterModal(parentWindow, options) {
-  const windowWidth = 480;
-  const windowHeight = 280;
+  const windowWidth = 1200;
+  const windowHeight = 800;
   const windowOptions = {
     title: `${app.name} Updater`,
     parent: parentWindow,
@@ -40,6 +40,9 @@ function createUpdaterModal(parentWindow, options) {
     resizable: false,
     autoHideMenuBar: true,
     backgroundColor: '#fff', // prevents blurry text: https://electronjs.org/docs/faq#the-font-looks-blurry-what-is-this-and-what-can-i-do
+    webPreferences: {
+      nodeIntegration: true,
+    },
   };
   if (process.platform === 'linux') {
     windowOptions.icon = options.linuxAppIcon;
@@ -145,9 +148,10 @@ function initialize(appState, mainWindow, notifyOnly = false) {
         message: 'You have the latest version of the Mattermost Desktop App.',
       }, () => {}); // eslint-disable-line no-empty-function
     }
-    setTimeout(() => {
-      autoUpdater.checkForUpdates();
-    }, UPDATER_INTERVAL_IN_MS);
+
+    // setTimeout(() => {
+    //   autoUpdater.checkForUpdates();
+    // }, UPDATER_INTERVAL_IN_MS);
   });
 }
 

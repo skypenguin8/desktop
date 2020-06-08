@@ -6,7 +6,7 @@ import propTypes from 'prop-types';
 import {Button, Navbar, ProgressBar} from 'react-bootstrap';
 
 function InstallButton(props) {
-  if (props.notifyOnly) {
+  if (!props.notifyOnly) {
     return (
       <Button
         bsStyle='primary'
@@ -66,16 +66,7 @@ function UpdaterPage(props) {
           fixedBottom={true}
           fluid={true}
         >
-          <Button
-            className='UpdaterPage-skipButton'
-            bsStyle='link'
-            onClick={props.onClickSkip}
-          >{'Skip this version'}</Button>
           <div className='pull-right'>
-            <Button
-              bsStyle='link'
-              onClick={props.onClickRemind}
-            >{'Remind me in 2 days'}</Button>
             <InstallButton
               notifyOnly={props.notifyOnly}
               onClickInstall={props.onClickInstall}
