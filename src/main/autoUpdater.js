@@ -11,7 +11,7 @@ import {autoUpdater, CancellationToken} from 'electron-updater';
 import semver from 'semver';
 
 // eslint-disable-next-line no-magic-numbers
-const UPDATER_INTERVAL_IN_MS = 1 * 60 * 1000; // 48 hours
+const UPDATER_INTERVAL_IN_MS = 5 * 60 * 1000; // 48 hours
 
 autoUpdater.logger = logger;
 autoUpdater.logger.transports.file.level = 'info';
@@ -27,8 +27,8 @@ function createEventListener(win, eventName) {
 }
 
 function createUpdaterModal(parentWindow, options) {
-  const windowWidth = 1200;
-  const windowHeight = 800;
+  const windowWidth = 400;
+  const windowHeight = 200;
   const windowOptions = {
     title: `${app.name} Updater`,
     parent: parentWindow,
@@ -95,7 +95,6 @@ function downloadAndInstall(cancellationToken) {
 }
 
 function initialize(appState, mainWindow, notifyOnly = false) {
-  console.log('================================================== autoUpdater =========================================================');
   autoUpdater.autoDownload = false; // To prevent upgrading on quit
   const assetsDir = path.resolve(app.getAppPath(), 'assets');
   autoUpdater.on('error', (err) => {
@@ -148,10 +147,6 @@ function initialize(appState, mainWindow, notifyOnly = false) {
         message: 'You have the latest version of the Mattermost Desktop App.',
       }, () => {}); // eslint-disable-line no-empty-function
     }
-
-    // setTimeout(() => {
-    //   autoUpdater.checkForUpdates();
-    // }, UPDATER_INTERVAL_IN_MS);
   });
 }
 

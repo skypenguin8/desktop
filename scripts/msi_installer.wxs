@@ -35,7 +35,7 @@
   - there are any changes in the feature hierarchy (child
     feature moving out of a parent, or a parent feature getting a new child).
   -->
-  <Product Id="*" UpgradeCode="8523DAF0-699D-4CC7-9A65-C5E696A9DE6D" Name="Mattermost" Manufacturer="Mattermost, Inc." Language="1033" Codepage="1252" Version="4.6.2">
+  <Product Id="*" UpgradeCode="8523DAF0-699D-4CC7-9A65-C5E696A9DE6D" Name="Mattermost" Manufacturer="Mattermost, Inc." Language="1033" Codepage="1252" Version="4.7.7">
     <!--
     perMachine installs the app system wide (ALLUSERS is set to 1)
     src.: https://www.joyofsetup.com/2008/04/01/new-wix-feature-setting-package-installation-scope/
@@ -1021,5 +1021,24 @@ The [Installer] will complete the installation of [ProductName] on your computer
     <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.6.0/mattermost-desktop-4.6.0-$(var.Platform).msi</Property>
     <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.6.1/mattermost-desktop-4.6.1-$(var.Platform).msi</Property>
     <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.6.2/mattermost-desktop-4.6.2-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.6.2/mattermost-desktop-4.6.2-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.6.3/mattermost-desktop-4.6.3-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.6.4/mattermost-desktop-4.6.4-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.6.4/mattermost-desktop-4.6.4-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.6.5/mattermost-desktop-4.6.5-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.6.6/mattermost-desktop-4.6.6-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.6.7/mattermost-desktop-4.6.7-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.6.8/mattermost-desktop-4.6.8-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.6.8/mattermost-desktop-4.6.8-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.6.9/mattermost-desktop-4.6.9-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.7.0/mattermost-desktop-4.7.0-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.7.1/mattermost-desktop-4.7.1-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.7.2/mattermost-desktop-4.7.2-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.7.3/mattermost-desktop-4.7.3-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.7.3/mattermost-desktop-4.7.3-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.7.4/mattermost-desktop-4.7.4-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.7.5/mattermost-desktop-4.7.5-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.7.6/mattermost-desktop-4.7.6-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.7.7/mattermost-desktop-4.7.7-$(var.Platform).msi</Property>
   </Product>
 </Wix>

@@ -816,10 +816,6 @@ function initializeAfterAppReady() {
     mainWindow.once('show', () => {
       if (autoUpdater.shouldCheckForUpdatesOnStart(appState.updateCheckedDate)) {
         ipcMain.emit('check-for-updates');
-      } else {
-        setTimeout(() => {
-          ipcMain.emit('check-for-updates');
-        }, autoUpdater.UPDATER_INTERVAL_IN_MS);
       }
     });
   }

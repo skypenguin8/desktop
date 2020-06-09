@@ -3,21 +3,14 @@
 // See LICENSE.txt for license information.
 import React from 'react';
 import propTypes from 'prop-types';
-import {Button, Navbar, ProgressBar} from 'react-bootstrap';
+import {Button, Navbar} from 'react-bootstrap';
 
 function InstallButton(props) {
-  if (!props.notifyOnly) {
-    return (
-      <Button
-        bsStyle='primary'
-        onClick={props.onClickDownload}
-      >{'Download Update'}</Button>
-    );
-  }
   return (
     <Button
       bsStyle='primary'
       onClick={props.onClickInstall}
+      style={{padding: '6px 12px'}}
     >{'Install Update'}</Button>
   );
 }
@@ -32,17 +25,10 @@ function UpdaterPage(props) {
   return (
     <div className='UpdaterPage'>
       <Navbar fluid={true} >
-        <h1 className='UpdaterPage-heading'>{'New update is available'}</h1>
+        <h1 className='UpdaterPage-heading'>{'신규 업데이트'}</h1>
       </Navbar>
       <div className='container-fluid'>
-        <p>{`A new version of the ${props.appName} is available!`}</p>
-        <p>{'Read the '}
-          <a
-            href='#'
-            onClick={props.onClickReleaseNotes}
-          >{'release notes'}</a>
-          {' to learn more.'}
-        </p>
+        <p>{props.isDownloading ? '다운로드 중입니다. (소요시간 : 2분)' : '새로운 버전으로 업데이트 하십시요!'}</p>
       </div>
       {props.isDownloading ?
         <Navbar
@@ -50,14 +36,10 @@ function UpdaterPage(props) {
           fixedBottom={true}
           fluid={true}
         >
-          <ProgressBar
-            active={true}
-            now={props.progress}
-            label={`${props.progress}%`}
-          />
           <div className='pull-right'>
             <Button
               onClick={props.onClickCancel}
+              style={{padding: '6px 12px'}}
             >{'Cancel'}</Button>
           </div>
         </Navbar> :
@@ -68,9 +50,7 @@ function UpdaterPage(props) {
         >
           <div className='pull-right'>
             <InstallButton
-              notifyOnly={props.notifyOnly}
               onClickInstall={props.onClickInstall}
-              onClickDownload={props.onClickDownload}
             />
           </div>
         </Navbar>
