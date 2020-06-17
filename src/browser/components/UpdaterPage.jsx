@@ -11,7 +11,7 @@ function InstallButton(props) {
       bsStyle='primary'
       onClick={props.onClickInstall}
       style={{padding: '6px 12px'}}
-    >{'Install Update'}</Button>
+    >{'업데이트'}</Button>
   );
 }
 
@@ -40,7 +40,7 @@ function UpdaterPage(props) {
             <Button
               onClick={props.onClickCancel}
               style={{padding: '6px 12px'}}
-            >{'Cancel'}</Button>
+            >{'취소'}</Button>
           </div>
         </Navbar> :
         <Navbar

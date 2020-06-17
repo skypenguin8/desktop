@@ -161,7 +161,7 @@ export default class MattermostView extends React.Component {
         const [title, body, channel, teamId, silent] = event.args;
         const currentWindow = remote.getCurrentWindow();
         Utils.dispatchNotification(title, body, silent, () => this.webviewRef.current.send('notification-clicked', {channel, teamId})).then((r) => {
-          r.onshow = () => {
+          if (r) {
             const bodyData = body.split(':');
             const callType = bodyData[1].trim().substring(0, 3);
             const callString = '!호출';
@@ -223,7 +223,7 @@ export default class MattermostView extends React.Component {
               }
               ipcRenderer.sendToHost('onNotificationClick');
             }
-          };
+          }
         });
         break;
       }
