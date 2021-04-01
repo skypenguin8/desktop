@@ -1045,5 +1045,6 @@ The [Installer] will complete the installation of [ProductName] on your computer
     <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.7.8/mattermost-desktop-4.7.8-$(var.Platform).msi</Property>
     <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.7.8/mattermost-desktop-4.7.8-$(var.Platform).msi</Property>
     <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.7.9/mattermost-desktop-4.7.9-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.mattermost.com/desktop/4.7.9/mattermost-desktop-4.7.9-$(var.Platform).msi</Property>
   </Product>
 </Wix>

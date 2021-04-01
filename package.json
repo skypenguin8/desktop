@@ -30,7 +30,7 @@
     "test": "npm-run-all lint:js test:*",
     "test:app": "cross-env NODE_ENV=production npm run build && mocha -r @babel/register --reporter mocha-circleci-reporter --recursive test/specs",
     "package:all": "cross-env NODE_ENV=production npm-run-all check-build-config package:windows package:mac package:linux",
-    "package:windows": "cross-env NODE_ENV=production npm-run-all check-build-config build && cross-env GH_TOKEN='49a568d49de9f134d2a60b7a46209168281aacd8' electron-builder --win --x64 --ia32 --publish=always",
+    "package:windows": "cross-env NODE_ENV=production npm-run-all check-build-config build && cross-env GH_TOKEN='583d71b250bae62ea77193b41f42ef3ce0d5cf88' electron-builder --win --x64 --ia32 --publish=always",
     "package:mac": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --mac --publish=never",
     "package:linux": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --linux --x64 --ia32 --publish=never",
     "lint:js": "eslint --ignore-path .gitignore --ignore-pattern node_modules --ext .js --ext .jsx .",
