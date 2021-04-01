@@ -4,17 +4,16 @@
 import AutoLaunch from 'auto-launch';
 
 async function upgradeAutoLaunch() {
-  if (process.platform === 'darwin') {
-    return;
-  }
-  const appLauncher = new AutoLaunch({
-    name: 'Mattermost',
-    isHidden: true,
-  });
-  const enabled = await appLauncher.isEnabled();
-  if (enabled) {
-    await appLauncher.enable();
-  }
+    if (process.platform === 'darwin') {
+        return;
+    }
+    const appLauncher = new AutoLaunch({
+        name: 'Mattermost',
+    });
+    const enabled = await appLauncher.isEnabled();
+    if (enabled) {
+        await appLauncher.enable();
+    }
 }
 
 export default upgradeAutoLaunch;

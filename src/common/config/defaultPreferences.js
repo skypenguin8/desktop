@@ -7,22 +7,23 @@
  * @param {number} version - Scheme version. (Not application version)
  */
 const defaultPreferences = {
-  version: 2,
-  teams: [],
-  showTrayIcon: false,
-  trayIconTheme: 'light',
-  minimizeToTray: false,
-  notifications: {
-    flashWindow: 2,
-    bounceIcon: true,
-    bounceIconType: 'informational',
-  },
-  showUnreadBadge: true,
-  useSpellChecker: true,
-  enableHardwareAcceleration: true,
-  autostart: true,
-  spellCheckerLocale: 'en-US',
-  darkMode: false,
+    version: 2,
+    teams: [],
+    showTrayIcon: true,
+    trayIconTheme: 'light',
+    minimizeToTray: true,
+    notifications: {
+        flashWindow: 2,
+        bounceIcon: true,
+        bounceIconType: 'informational',
+    },
+    showUnreadBadge: true,
+    useSpellChecker: true,
+    enableHardwareAcceleration: true,
+    autostart: true,
+    spellCheckerLocale: 'en-US',
+    darkMode: false,
+    downloadLocation: `/Users/${process.env.USER || process.env.USERNAME}/Downloads`,
 };
 
 export default defaultPreferences;

@@ -8,30 +8,37 @@
   "artifactName": "${name}-${version}-${os}-${arch}.${ext}",
   "directories": {
     "buildResources": "resources",
-    "app": "src",
     "output": "release"
   },
+  "extraMetadata": {
+    "main": "index.js"
+  },
   "files": [
-    "main_bundle.js",
-    "browser/**/*{.html,.css,_bundle.js,.svg,.png}",
-    "assets/**/*",
-    "browser/assets/fonts/*",
     "node_modules/bootstrap/dist/**",
     "node_modules/font-awesome/{css,fonts}/**",
-    "node_modules/simple-spellchecker/dict/*.dic"
+    {
+      "from": "dist",
+      "to": ".",
+      "filter": "**/*"
+    }
   ],
   "protocols": [
     {
       "name": "Mattermost",
       "schemes": [
-        "mattermost"
+        "mattermost",
+        "http",
+        "https",
+        "ftp",
+        "mailto",
+        "tel"
       ]
     }
   ],
   "afterPack": "scripts/afterpack.js",
   "afterSign": "scripts/notarize.js",
   "deb": {
-    "synopsis": "Mattermost"
+    "synopsis": "Mattermost Desktop App"
   },
   "linux": {
     "category": "Network;InstantMessaging",
@@ -73,7 +80,13 @@
       }
     ],
     "hardenedRuntime": true,
-    "gatekeeperAssess": true
+    "gatekeeperAssess": true,
+    "entitlements": "./build/entitlements.mac.plist",
+    "entitlementsInherit": "./build/entitlements.mac.plist",
+    "extendInfo": {
+      "NSMicrophoneUsageDescription": "Microphone access may be used by Mattermost plugins, such as Jitsi video conferencing.",
+      "NSCameraUsageDescription": "Camera access may be used by Mattermost plugins, such as Jitsi video conferencing."
+  }
   },
   "dmg": {
     "background": "resources/osx/DMG_BG.png",
@@ -114,4 +127,3 @@
     "artifactName": "${name}-setup-${version}-win.${ext}"
   }
 }
-

@@ -6,13 +6,13 @@ import propTypes from 'prop-types';
 import {Button, Navbar} from 'react-bootstrap';
 
 function InstallButton(props) {
-  return (
-    <Button
-      bsStyle='primary'
-      onClick={props.onClickInstall}
-      style={{padding: '6px 12px'}}
-    >{'업데이트'}</Button>
-  );
+    return (
+        <Button
+            bsStyle='primary'
+            onClick={props.onClickInstall}
+            style={{padding: '6px 12px'}}
+        >{'업데이트'}</Button>
+    );
 }
 
 InstallButton.propTypes = {
@@ -28,7 +28,7 @@ function UpdaterPage(props) {
         <h1 className='UpdaterPage-heading'>{'신규 업데이트'}</h1>
       </Navbar>
       <div className='container-fluid'>
-        <p>{props.isDownloading ? '다운로드 중입니다. (소요시간 : 2분)' : '새로운 버전으로 업데이트 하십시요!'}</p>
+          <p>{props.isDownloading ? '다운로드 중입니다. (소요시간 : 2분)' : '새로운 버전으로 업데이트 하십시요!'}</p>
       </div>
       {props.isDownloading ?
         <Navbar
